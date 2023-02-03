@@ -15,7 +15,7 @@ class AbstractAPI:
 		self.cities = []
 
 	def fetch_city_data(self, city_name):
-		city_data = requests.get(self.ABSTRACTAPI_URL+city_name).json()
+		city_data = requests.get(ABSTRACTAPI_URL+city_name).json()
 		return {
 			'gmt_offset': city_data['gmt_offset'],
 			'name': city_name
@@ -27,14 +27,14 @@ class AbstractAPI:
 		current_utc_time=datetime.datetime.now(datetime.timezone.utc)
 	):
 		'''
-	Get current time of a timezone.
+		Get current time of a timezone.
 
-	Parameters:
-		- 'gmt_offset': timezone offset in hours from UTC time.
-		- 'current UTC': current UTC time.
-	'''
-	return (current_UTC_time
-			+ datetime.timedelta(hours=gmt_offset)).strftime('%H:%M')
+		Parameters:
+			- 'gmt_offset': timezone offset in hours from UTC time.
+			- 'current UTC': current UTC time.
+		'''
+		return (current_utc_time
+                + datetime.timedelta(hours=gmt_offset)).strftime('%H:%M')
 
 
 class InMemoryAPIMock:
@@ -55,5 +55,3 @@ class InMemoryAPIMock:
 			'gmt_offset': city_data['gmt_offset'],
 			'name': city_name
 		}	
-
-

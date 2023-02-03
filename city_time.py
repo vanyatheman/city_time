@@ -39,58 +39,59 @@ class CityDataFetcher(Protocol):
 
 
 class City:
-	"""
-	Class of cities.
-	"""
-	def __init__(self, name, timezone):
-		self.name = name
-		self.timezone = timezone
+    """
+    Class of cities.
+    """
+    def __init__(self, name, timezone):
+        self.name = name
+        self.timezone = timezone
 
-	def __str__(str):
-		return f'{self.name}'
+    def __str__(self):
+        return f'{self.name}'
 
 
 class Application:
-	"""
-	Application class.
-	
-	Describes logic of user commands processing.
-	"""
-	
-	def __init__(self, fetcher: CityDataFetcher):
-		self.fetcher = fetcher
+    """
+    Application class.
+    
+    Describes logic of user commands processing.
+    """
+    
+    def __init__(self, fetcher: CityDataFetcher):
+        self.fetcher = fetcher
 
-		#self.cities = dict()
-		self.commands = {
-			'1': self.show_cities_list,
-			'2': self.add_city,
-			'3': self.exit,
-		}
+        #self.cities = dict()
+        self.commands = {
+            '1': self.show_cities_list,
+            '2': self.add_city,
+            '3': self.exit,
+        }
 
-	def show_menu(self):
-		print(
-			'\nEnter a command:\n'
-			'1. Get city list\n'
-			'2. Add a city\n'
-			'3. Exit'
-		)
+    def show_menu(self):
+        print(
+            '\nEnter a command:\n'
+            '1. Get city list\n'
+            '2. Add a city\n'
+            '3. Exit'
+        )
 
-	def handle_user_input(self):
-		command = input('>>> ')
-		if command not in self.commands:
-			print(f'Unknown command "{command}"')
-			return
-		self.commands[command]()
+    def handle_user_input(self):
+        command = input('>>> ')
+        if command not in self.commands:
+            print(f'Unknown command "{command}"')
+            return
+        self.commands[command]()
 
-	def show_cities_list(self):
-		"""
-		Shows citites list.
-		"""
-		current_utc_time = datetime.datetime.now(datetime.timezone.utc)
-		if self.fetcher.__class__.__name__ == 'InMemoryAPIMock':
+    def show_cities_list(self):
+        '''
+        Метод выводит список городов на экран.
+        '''
+        current_utc_time = datetime.datetime.now(datetime.timezone.utc)
+        if self.fetcher.__class__.__name__ == 'InMemoryAPIMock':
             # проверяем через какой обьект мы работаем
             # если через БД, то выводим данные котоыре находятся в БД
-		    for city_name in self.fetcher.cities:
+            for city_name in sorted(self.fetcher.cities, 
+                                    key = lambda city: city.name):
                 local_time = self.fetcher.get_local_time(
                     self.fetcher.fetch_city_data(city_name)['gmt_offset'],
                     current_utc_time
@@ -100,13 +101,14 @@ class Application:
                 )
         # если работаем через AbstractAPI то достаем из локального массива
         else:
-        	for city_name in self.fetcher.cities:
+            for city_name in sorted(self.fetcher.cities, 
+                                    key = lambda city: city.name):
                 local_time = self.fetcher.get_local_time(city_name.timezone)
                 print(
                     f'{city_name}: {local_time}'
                 )
 
-	def add_city(self):
+    def add_city(self):
         '''
         Метод получает информацию о городе, который интересует пользователя,
         используя реализацию `self.fetcher`, после чего выводит на экран
@@ -114,25 +116,25 @@ class Application:
         И добавляет его в базу данных,
         чтобы можно вывести вместе с общим списком
         '''
-		city_name = input('Enter a cityname: ')
-		city_data = self.fetcher.fetch_city_data(city_name)
+        city_name = input('Enter a cityname: ')
+        city_data = self.fetcher.fetch_city_data(city_name)
 
-		if not city_data:
-			return
+        if not city_data:
+            return
 
-		print(
+        print(
             'Current time:',
             self.fetcher.get_local_time(city_data['gmt_offset'])
         )
 
-		new_city = City(city_name, city_data['gmt_offset'])
-		self.fetcher.cities.append(cities)
-	
-	def exit(self):
-		'''
+        new_city = City(city_name, city_data['gmt_offset'])
+        self.fetcher.cities.append(new_city)
+    
+    def exit(self):
+        '''
         Метод останавливает выполнение программы.
         '''
-		sys.exit(0)
+        sys.exit(0)
 
 
 if __name__ == '__main__':
